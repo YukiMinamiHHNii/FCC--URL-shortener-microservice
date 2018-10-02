@@ -18,7 +18,7 @@ html {
 	background-color: var(--color-main);
 }
 
-a{
+a {
 	color: var(--pad-btn-active);
 }
 
@@ -33,9 +33,23 @@ a{
 #root {
 	margin: 0 auto;
 	height: 100vh;
-	max-width: 80vh;
+	max-width: 80%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
+}
+
+input {
+	padding: var(--general-padding);
+}
+
+input[type="submit"] {
+	border: none;
+	background-color: var(--pad-btn);
+}
+
+input[type="submit"]:hover {
+	background-color: var(--pad-btn-active);
+	color: var(--font-color);
 }

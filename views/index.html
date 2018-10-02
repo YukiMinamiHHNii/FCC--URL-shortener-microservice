@@ -7,7 +7,33 @@
 </head>
 <body>
 	<main id="root">
-		<h2>Project requirements go here</h2>
+		<h2>API Project: URL Shortener Microservice</h2>
+		<h3>Requirements</h3>
+		<ul>
+			<li>
+				I can POST a URL to [project_url]/api/shorturl/new and I will receive a shortened URL in the JSON response. 
+				Example: {"original_url":"www.example.com","short_url": "ex01"}
+			</li>
+			<li>
+				If I pass an invalid URL that doesn't follow the http(s)://www.example.com(/more/routes) format, the JSON response will contain an error like {"error":"invalid URL"} 
+				<p>
+					HINT: to be sure that the submitted url points to a valid site you can use the function dns.lookup(host, cb) from the dns core module.
+				</p>
+			</li>
+			<li>
+				When I visit the shortened URL, it will redirect me to my original link.
+			</li>
+		</ul>
+		<h3>Short URL Creation</h3>
+		<form method="POST" action="/api/shorturl/new">
+			<label for="userInput">URL to shorten:</label>
+			<input id="userInput" type="text" name="url" value="http://www.google.co.jp">
+			<input value="Shorten" type="submit">
+		</form>
+		<h3>Example Usage:</h3>
+		<a href="/api/shorturl/AA010101AA">[base_url]/api/shorturl/AA010101AA</a>
+		<h3>Will redirect to:</h3>
+		<a href="http://www.google.co.jp">http://www.google.co.jp</a>
 	</main>
 </body>
 </html>
