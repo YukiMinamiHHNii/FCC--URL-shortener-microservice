@@ -1,9 +1,16 @@
 const dns = require("dns"),
-	checkURL = require("valid-url"),
-	url = require("url");
+			checkURL = require("valid-url"),
+			url = require("url"),
+			shorturlDAO = require("../daos/shorturlDAO");
 
 exports.visitShortURL = (req, res) => {
-	res.json({placeholder: req.params.address})
+	shorturlDAO.createShortURL((err, res) => {
+		err ? console.log(err) : console.log(res);
+	});
+	shorturlDAO.readAll((err, res) => {
+		err ? console.log(err) : console.log(res);
+	});
+	res.json({ placeholder: req.params.address });
 };
 
 exports.genShortURL = (req, res) => {
