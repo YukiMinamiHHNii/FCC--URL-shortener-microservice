@@ -7,9 +7,6 @@ exports.visitShortURL = (req, res) => {
 	shorturlDAO.createShortURL((err, res) => {
 		err ? console.log(err) : console.log(res);
 	});
-	shorturlDAO.readAll((err, res) => {
-		err ? console.log(err) : console.log(res);
-	});
 	res.json({ placeholder: req.params.address });
 };
 

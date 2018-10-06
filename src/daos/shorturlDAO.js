@@ -1,6 +1,6 @@
 const mongoose = require("mongoose"),
-			dotenv = require("dotenv").load(),
-			ShortURL = require("../models/shorturlModel");
+	dotenv = require("dotenv").load(),
+	ShortURL = require("../models/shorturlModel");
 
 function handleConnection(connected) {
 	mongoose.connect(
@@ -10,14 +10,6 @@ function handleConnection(connected) {
 		}
 	);
 }
-
-exports.readAll = result => {
-	handleConnection((connected, error) => {
-		ShortURL.find({}, (err, data) => {
-			return err ? result(err) : result(null, data);
-		});
-	});
-};
 
 exports.createShortURL = result => {
 	handleConnection((connected, error) => {
@@ -29,4 +21,24 @@ exports.createShortURL = result => {
 			return err ? result(err) : result(null, data);
 		});
 	});
+};
+
+exports.readAll = result => {
+	handleConnection((connected, error) => {
+		ShortURL.find({}, (err, data) => {
+			return err ? result(err) : result(null, data);
+		});
+	});
+};
+
+exports.readByProperty = (queryObj, result) => {
+	if (Object.keys(queryObj).length === 0) {
+		return result("A non-empty object is needed for searching");
+	} else {
+		handleConnection((connected, error) => {
+			ShortURL.find(queryObj, (err, data) => {
+				return err ? result(err) : result(null, data);
+			});
+		});
+	}
 };
