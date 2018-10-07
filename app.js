@@ -1,6 +1,6 @@
 const express = require("express"),
 			dotenv = require("dotenv").load(),
-			shorturlRouter = require("./src/routers/shorturl");
+			shorturlRouter = require("./src/routers/shorturl"),
 			bodyParser = require("body-parser");
 
 const app = express();
