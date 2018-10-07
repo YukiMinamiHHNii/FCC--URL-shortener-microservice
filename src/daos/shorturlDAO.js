@@ -11,13 +11,13 @@ function handleConnection(connected) {
 	);
 }
 
-exports.createShortURL = result => {
+exports.createShortURL = (original, short, result) => {
 	handleConnection((connected, error) => {
-		let test = new ShortURL({
-			originalURL: `original${Math.random()}`,
-			shortURL: `short${Math.random()}`
+		let shorturl = new ShortURL({
+			originalURL: original,
+			shortURL: short
 		});
-		test.save((err, data) => {
+		shorturl.save((err, data) => {
 			return err ? result(err) : result(null, data);
 		});
 	});
@@ -31,12 +31,12 @@ exports.readAll = result => {
 	});
 };
 
-exports.readByProperty = (queryObj, result) => {
+exports.readOneByProperty = (queryObj, result) => {
 	if (Object.keys(queryObj).length === 0) {
 		return result("A non-empty object is needed for searching");
 	} else {
 		handleConnection((connected, error) => {
-			ShortURL.find(queryObj, (err, data) => {
+			ShortURL.findOne(queryObj, (err, data) => {
 				return err ? result(err) : result(null, data);
 			});
 		});

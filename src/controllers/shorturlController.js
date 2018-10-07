@@ -1,23 +1,42 @@
 const dns = require("dns"),
-			checkURL = require("valid-url"),
-			url = require("url"),
-			shorturlDAO = require("../daos/shorturlDAO");
+	checkURL = require("valid-url"),
+	url = require("url"),
+	shorturlDAO = require("../daos/shorturlDAO");
 
 exports.visitShortURL = (req, res) => {
-	shorturlDAO.createShortURL((err, res) => {
-		err ? console.log(err) : console.log(res);
-	});
+	//shorturlDAO.createShortURL((err, res) => {
+	//	return err ? console.log(err) : console.log(res);
+	//});
 	res.json({ placeholder: req.params.address });
 };
 
 exports.genShortURL = (req, res) => {
-	validateAddress(req.body.url, (result, data) => {
-		if (result) {
-			res.json({
-				original_url: data,
-				short_url: getRand()
+	validateAddress(req.body.url, (valid, addressData) => {
+		if (valid) {
+			shorturlDAO.readOneByProperty({ originalURL: addressData },(readErr, shortURLData) => {
+				if (!readErr) {
+					if(shortURLData!==null){
+						res.json({
+							original_url: shortURLData.originalURL,
+							short_url: shortURLData.shortURL
+						});
+					} else {
+						shorturlDAO.createShortURL(addressData, getRand(), (saveErr, saveData) => {
+							if (saveErr) {
+								res.json({ error: "Error while saving to DB" });
+							} else {
+								res.json({
+									original_url: saveData.originalURL,
+									short_url: saveData.shortURL
+								});
+							}
+						});
+					}
+				} else {
+					res.json({ error: "Error reading from DB" });
+				}
 			});
-		} else {
+		}else{
 			res.json({ error: "invalid URL" });
 		}
 	});
