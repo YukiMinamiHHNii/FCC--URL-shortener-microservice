@@ -4,39 +4,56 @@ const dns = require("dns"),
 	shorturlDAO = require("../daos/shorturlDAO");
 
 exports.visitShortURL = (req, res) => {
-	//shorturlDAO.createShortURL((err, res) => {
-	//	return err ? console.log(err) : console.log(res);
-	//});
-	res.json({ placeholder: req.params.address });
+	shorturlDAO.readOneByProperty(
+		{ shortURL: req.params.address },
+		(readErr, shortURLData) => {
+			if (!readErr) {
+				if (shortURLData !== null) {
+					res.redirect(302, shortURLData.originalURL);
+				} else {
+					res.json({ error: "invalid shortURL" });
+				}
+			} else {
+				res.json({ error: "Error reading from DB" });
+			}
+		}
+	);
 };
 
 exports.genShortURL = (req, res) => {
 	validateAddress(req.body.url, (valid, addressData) => {
 		if (valid) {
-			shorturlDAO.readOneByProperty({ originalURL: addressData },(readErr, shortURLData) => {
-				if (!readErr) {
-					if(shortURLData!==null){
-						res.json({
-							original_url: shortURLData.originalURL,
-							short_url: shortURLData.shortURL
-						});
+			shorturlDAO.readOneByProperty(
+				{ originalURL: addressData },
+				(readErr, shortURLData) => {
+					if (!readErr) {
+						if (shortURLData !== null) {
+							res.json({
+								original_url: shortURLData.originalURL,
+								short_url: shortURLData.shortURL
+							});
+						} else {
+							shorturlDAO.createShortURL(
+								addressData,
+								getRand(),
+								(saveErr, saveData) => {
+									if (saveErr) {
+										res.json({ error: "Error while saving to DB" });
+									} else {
+										res.json({
+											original_url: saveData.originalURL,
+											short_url: saveData.shortURL
+										});
+									}
+								}
+							);
+						}
 					} else {
-						shorturlDAO.createShortURL(addressData, getRand(), (saveErr, saveData) => {
-							if (saveErr) {
-								res.json({ error: "Error while saving to DB" });
-							} else {
-								res.json({
-									original_url: saveData.originalURL,
-									short_url: saveData.shortURL
-								});
-							}
-						});
+						res.json({ error: "Error reading from DB" });
 					}
-				} else {
-					res.json({ error: "Error reading from DB" });
 				}
-			});
-		}else{
+			);
+		} else {
 			res.json({ error: "invalid URL" });
 		}
 	});
