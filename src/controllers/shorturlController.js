@@ -14,7 +14,7 @@ exports.visitShortURL = (req, res) => {
 					res.json({ error: "invalid shortURL" });
 				}
 			} else {
-				res.json({ error: "Error reading from DB" });
+				res.json({ error: readErr });
 			}
 		}
 	);
@@ -38,7 +38,7 @@ exports.genShortURL = (req, res) => {
 								getRand(),
 								(saveErr, saveData) => {
 									if (saveErr) {
-										res.json({ error: "Error while saving to DB" });
+										res.json({ error: saveErr });
 									} else {
 										res.json({
 											original_url: saveData.originalURL,
@@ -49,7 +49,7 @@ exports.genShortURL = (req, res) => {
 							);
 						}
 					} else {
-						res.json({ error: "Error reading from DB" });
+						res.json({ error: readErr });
 					}
 				}
 			);

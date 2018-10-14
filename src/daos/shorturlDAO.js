@@ -6,27 +6,39 @@ function handleConnection(connected) {
 	mongoose.connect(
 		process.env.MONGO_DB_CONNECTION,
 		error => {
-			error ? connected(false, error) : connected(true, null);
+			error
+				? connected(false, { error: "Error while connecting to DB" })
+				: connected(true, null);
 		}
 	);
 }
 
 exports.createShortURL = (original, short, result) => {
 	handleConnection((connected, error) => {
+		if (error) {
+			return result(error);
+		}
 		let shorturl = new ShortURL({
 			originalURL: original,
 			shortURL: short
 		});
 		shorturl.save((err, data) => {
-			return err ? result(err) : result(null, data);
+			return err
+				? result({ error: "Error while creating a new shortURL" })
+				: result(null, data);
 		});
 	});
 };
 
 exports.readAll = result => {
 	handleConnection((connected, error) => {
+		if (error) {
+			return result(error);
+		}
 		ShortURL.find({}, (err, data) => {
-			return err ? result(err) : result(null, data);
+			return err
+				? result({ error: "Error while reading from DB" })
+				: result(null, data);
 		});
 	});
 };
@@ -36,8 +48,13 @@ exports.readOneByProperty = (queryObj, result) => {
 		return result("A non-empty object is needed for searching");
 	} else {
 		handleConnection((connected, error) => {
+			if (error) {
+				return result(error);
+			}
 			ShortURL.findOne(queryObj, (err, data) => {
-				return err ? result(err) : result(null, data);
+				return err
+					? result({ error: "Error while reading from DB" })
+					: result(null, data);
 			});
 		});
 	}
