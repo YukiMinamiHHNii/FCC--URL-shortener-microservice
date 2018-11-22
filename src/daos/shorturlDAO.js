@@ -2,60 +2,82 @@ const mongoose = require("mongoose"),
 	dotenv = require("dotenv").load(),
 	ShortURL = require("../models/shorturlModel");
 
-function handleConnection(connected) {
-	mongoose.connect(
-		process.env.MONGO_DB_CONNECTION,
-		error => {
-			error
-				? connected(false, { error: "Error while connecting to DB" })
-				: connected(true, null);
-		}
-	);
+function handleConnection() {
+	return new Promise((resolve, reject) => {
+		mongoose
+			.connect(process.env.MONGO_DB_CONNECTION)
+			.then(() => {
+				resolve();
+			})
+			.catch(err => {
+				reject({ status: "Error while connecting to DB", error: err.message });
+			});
+	});
 }
 
-exports.createShortURL = (original, short, result) => {
-	handleConnection((connected, error) => {
-		if (error) {
-			return result(error);
-		}
-		let shorturl = new ShortURL({
-			originalURL: original,
-			shortURL: short
-		});
-		shorturl.save((err, data) => {
-			return err
-				? result({ error: "Error while creating a new shortURL" })
-				: result(null, data);
-		});
-	});
-};
-
-exports.readAll = result => {
-	handleConnection((connected, error) => {
-		if (error) {
-			return result(error);
-		}
-		ShortURL.find({}, (err, data) => {
-			return err
-				? result({ error: "Error while reading from DB" })
-				: result(null, data);
-		});
-	});
-};
-
-exports.readOneByProperty = (queryObj, result) => {
-	if (Object.keys(queryObj).length === 0) {
-		return result("A non-empty object is needed for searching");
-	} else {
-		handleConnection((connected, error) => {
-			if (error) {
-				return result(error);
-			}
-			ShortURL.findOne(queryObj, (err, data) => {
-				return err
-					? result({ error: "Error while reading from DB" })
-					: result(null, data);
+exports.createShortURL = (original, short) => {
+	return new Promise((resolve, reject) => {
+		handleConnection()
+			.then(() => {
+				return saveShorturl(original, short);
+			}).then(savedURL=>{
+				resolve(savedURL);
+			})
+			.catch(err => {
+				reject(err);
 			});
-		});
-	}
+	});
 };
+
+function saveShorturl(originalURL, shortURL) {
+	return new Promise((resolve, reject) => {
+		new ShortURL({
+			originalURL: originalURL,
+			shortURL: shortURL
+		})
+			.save()
+			.then(savedURL => {
+				resolve({
+					original_url: savedURL.originalURL,
+					short_url: savedURL.shortURL
+				});
+			})
+			.catch(err => {
+				reject({
+					status: "Error while creating new shortURL",
+					error: err.message
+				});
+			});
+	});
+}
+
+exports.getOriginalURL = shortURL => {
+	return new Promise((resolve, reject) => {
+		handleConnection()
+			.then(() => {
+				return readByShortURL(shortURL);
+			}).then(foundURL=>{
+				resolve(foundURL);
+			})
+			.catch(err => {
+				reject(err);
+			});
+	});
+};
+
+function readByShortURL(shortURL) {
+	return new Promise((resolve, reject) => {
+		ShortURL.findOne({ shortURL: shortURL })
+			.exec()
+			.then(foundURL => {
+				if (foundURL) {
+					resolve(foundURL);
+				} else {
+					reject({ status: "Data not found for given shortURL" });
+				}
+			})
+			.catch(err => {
+				reject({ status: "Error while reading from DB", error: err.message });
+			});
+	});
+}

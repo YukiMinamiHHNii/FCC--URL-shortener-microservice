@@ -3,61 +3,45 @@ const dns = require("dns"),
 	url = require("url"),
 	shorturlDAO = require("../daos/shorturlDAO");
 
-exports.visitShortURL = (req, res) => {
-	shorturlDAO.readOneByProperty(
-		{ shortURL: req.params.address },
-		(readErr, shortURLData) => {
-			if (!readErr) {
-				if (shortURLData !== null) {
-					res.redirect(302, shortURLData.originalURL);
-				} else {
-					res.json({ error: "invalid shortURL" });
-				}
-			} else {
-				res.json({ error: readErr });
-			}
-		}
-	);
+exports.genShortURL = (req, res) => {
+	validateAddress(req.body.url)
+		.then(address => {
+			return shorturlDAO.createShortURL(address, getRand());
+		})
+		.then(result => {
+			return res.json(result);
+		})
+		.catch(err => {
+			return res.json(err);
+		});
 };
 
-exports.genShortURL = (req, res) => {
-	validateAddress(req.body.url, (valid, addressData) => {
-		if (valid) {
-			shorturlDAO.readOneByProperty(
-				{ originalURL: addressData },
-				(readErr, shortURLData) => {
-					if (!readErr) {
-						if (shortURLData !== null) {
-							res.json({
-								original_url: shortURLData.originalURL,
-								short_url: shortURLData.shortURL
-							});
-						} else {
-							shorturlDAO.createShortURL(
-								addressData,
-								getRand(),
-								(saveErr, saveData) => {
-									if (saveErr) {
-										res.json({ error: saveErr });
-									} else {
-										res.json({
-											original_url: saveData.originalURL,
-											short_url: saveData.shortURL
-										});
-									}
-								}
-							);
-						}
-					} else {
-						res.json({ error: readErr });
-					}
+exports.visitShortURL = (req, res) => {
+	shorturlDAO
+		.getOriginalURL(req.params.address)
+		.then(result => {
+			res.redirect(302, result.originalURL);
+		})
+		.catch(err => {
+			return res.json(err);
+		});
+};
+
+function validateAddress(address) {
+	return new Promise((resolve, reject) => {
+		if (checkURL.isUri(address)) {
+			dns.resolve(url.parse(address).hostname, (err, res) => {
+				if (err) {
+					reject({ status: "Invalid URL" });
+				} else {
+					resolve(address);
 				}
-			);
+			});
 		} else {
-			res.json({ error: "invalid URL" });
+			reject({ status: "Invalid URL" });
 		}
 	});
-};
+}
 
 function getRand() {
 	let characters =
@@ -70,14 +54,4 @@ function getRand() {
 	}
 
 	return result;
-}
-
-function validateAddress(address, callback) {
-	if (checkURL.isUri(address)) {
-		dns.resolve(url.parse(address).hostname, (err, res) => {
-			err ? callback(false, null) : callback(true, address);
-		});
-	} else {
-		callback(false, null);
-	}
 }

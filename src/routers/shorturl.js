@@ -2,7 +2,7 @@ const express = require("express"),
 			router = express.Router(),
 			shorturlController = require("../controllers/shorturlController");
 
-router.get("/:address", shorturlController.visitShortURL);
 router.post("/new", shorturlController.genShortURL);
+router.get("/:address", shorturlController.visitShortURL);
 
 module.exports = router;
