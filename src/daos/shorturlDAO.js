@@ -2,64 +2,59 @@ const mongoose = require("mongoose"),
 	ShortURL = require("../models/shorturlModel");
 
 exports.createShortURL = (original, short) => {
-	return new Promise((resolve, reject) => {
-		saveShorturl(original, short)
-			.then(savedURL => {
-				resolve(savedURL);
-			})
-			.catch(err => {
-				reject(err);
-			});
-	});
+	return saveShorturl(original, short)
+		.then(savedURL => {
+			return savedURL;
+		})
+		.catch(err => {
+			return Promise.reject(err);
+		});
 };
 
 function saveShorturl(originalURL, shortURL) {
-	return new Promise((resolve, reject) => {
-		ShortURL({
-			originalURL: originalURL,
-			shortURL: shortURL
+	return ShortURL({
+		originalURL: originalURL,
+		shortURL: shortURL
+	})
+		.save()
+		.then(savedURL => {
+			return {
+				original_url: savedURL.originalURL,
+				short_url: savedURL.shortURL
+			};
 		})
-			.save()
-			.then(savedURL => {
-				resolve({
-					original_url: savedURL.originalURL,
-					short_url: savedURL.shortURL
-				});
-			})
-			.catch(err => {
-				reject({
-					status: "Error while creating new shortURL",
-					error: err.message
-				});
+		.catch(err => {
+			return Promise.reject({
+				status: "Error while creating new shortURL",
+				error: err.message
 			});
-	});
+		});
 }
 
 exports.getOriginalURL = shortURL => {
-	return new Promise((resolve, reject) => {
-		readByShortURL(shortURL)
-			.then(foundURL => {
-				resolve(foundURL);
-			})
-			.catch(err => {
-				reject(err);
-			});
-	});
+	return readByShortURL(shortURL)
+		.then(foundURL => {
+			return foundURL;
+		})
+		.catch(err => {
+			return Promise.reject(err);
+		});
 };
 
 function readByShortURL(shortURL) {
-	return new Promise((resolve, reject) => {
-		ShortURL.findOne({ shortURL: shortURL })
-			.exec()
-			.then(foundURL => {
-				if (foundURL) {
-					resolve(foundURL);
-				} else {
-					reject({ status: "Data not found for given shortURL" });
-				}
-			})
-			.catch(err => {
-				reject({ status: "Error while reading from DB", error: err.message });
+	return ShortURL.findOne({ shortURL: shortURL })
+		.exec()
+		.then(foundURL => {
+			if (foundURL) {
+				return foundURL;
+			} else {
+				return Promise.reject({ status: "Data not found for given shortURL" });
+			}
+		})
+		.catch(err => {
+			return Promise.reject({
+				status: err.status ? err.status : "Error while reading from DB",
+				error: err.message
 			});
-	});
+		});
 }
