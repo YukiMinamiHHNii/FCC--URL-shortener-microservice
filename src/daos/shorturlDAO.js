@@ -2,25 +2,10 @@ const mongoose = require("mongoose"),
 	dotenv = require("dotenv").load(),
 	ShortURL = require("../models/shorturlModel");
 
-function handleConnection() {
-	return new Promise((resolve, reject) => {
-		mongoose
-			.connect(process.env.MONGO_DB_CONNECTION)
-			.then(() => {
-				resolve();
-			})
-			.catch(err => {
-				reject({ status: "Error while connecting to DB", error: err.message });
-			});
-	});
-}
-
 exports.createShortURL = (original, short) => {
 	return new Promise((resolve, reject) => {
-		handleConnection()
-			.then(() => {
-				return saveShorturl(original, short);
-			}).then(savedURL=>{
+		saveShorturl(original, short)
+			.then(savedURL => {
 				resolve(savedURL);
 			})
 			.catch(err => {
@@ -31,7 +16,7 @@ exports.createShortURL = (original, short) => {
 
 function saveShorturl(originalURL, shortURL) {
 	return new Promise((resolve, reject) => {
-		new ShortURL({
+		ShortURL({
 			originalURL: originalURL,
 			shortURL: shortURL
 		})
@@ -53,10 +38,8 @@ function saveShorturl(originalURL, shortURL) {
 
 exports.getOriginalURL = shortURL => {
 	return new Promise((resolve, reject) => {
-		handleConnection()
-			.then(() => {
-				return readByShortURL(shortURL);
-			}).then(foundURL=>{
+		readByShortURL(shortURL)
+			.then(foundURL => {
 				resolve(foundURL);
 			})
 			.catch(err => {
