@@ -1,5 +1,4 @@
 const mongoose = require("mongoose"),
-	dotenv = require("dotenv").load(),
 	ShortURL = require("../models/shorturlModel");
 
 exports.createShortURL = (original, short) => {
