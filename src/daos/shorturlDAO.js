@@ -1,6 +1,20 @@
 const mongoose = require("mongoose"),
 	ShortURL = require("../models/shorturlModel");
 
+exports.getAllShortUrls = () => {
+	return ShortURL.find()
+		.select({ __v: 0, _id: 0 })
+		.then(foundUrls => {
+			return foundUrls;
+		})
+		.catch(err => {
+			return Promise.reject({
+				status: "Error while retrieving all registered shortURLs",
+				error: err.message
+			});
+		});
+};
+
 exports.createShortURL = (original, short) => {
 	return saveShorturl(original, short)
 		.then(savedURL => {

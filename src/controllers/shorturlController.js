@@ -3,6 +3,17 @@ const dns = require("dns"),
 	url = require("url"),
 	shorturlDAO = require("../daos/shorturlDAO");
 
+exports.getAllShortUrls = (req, res) => {
+	shorturlDAO
+		.getAllShortUrls()
+		.then(result => {
+			return res.json(result);
+		})
+		.catch(err => {
+			return res.json(err);
+		});
+};
+
 exports.genShortURL = (req, res) => {
 	validateAddress(req.body.url)
 		.then(address => {
