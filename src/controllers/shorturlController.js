@@ -31,7 +31,7 @@ exports.visitShortURL = (req, res) => {
 	shorturlDAO
 		.getOriginalURL(req.params.address)
 		.then(result => {
-			res.redirect(302, result.originalURL);
+			res.redirect(302, result.original_url);
 		})
 		.catch(err => {
 			return res.json(err);

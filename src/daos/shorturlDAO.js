@@ -56,7 +56,7 @@ exports.getOriginalURL = shortURL => {
 };
 
 function readByShortURL(shortURL) {
-	return ShortURL.findOne({ shortURL: shortURL })
+	return ShortURL.findOne({ short_url: shortURL })
 		.exec()
 		.then(foundURL => {
 			if (foundURL) {
