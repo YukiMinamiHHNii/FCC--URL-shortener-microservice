@@ -1,6 +1,6 @@
 const express = require("express"),
-			router = express.Router(),
-			shorturlController = require("../controllers/shorturlController");
+	router = express.Router(),
+	shorturlController = require("../controllers/shorturlController");
 
 router.get("/", shorturlController.getAllShortUrls);
 router.post("/new", shorturlController.genShortURL);
