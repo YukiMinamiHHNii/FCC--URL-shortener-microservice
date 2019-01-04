@@ -27,14 +27,14 @@ exports.createShortURL = (original, short) => {
 
 function saveShorturl(originalURL, shortURL) {
 	return ShortURL({
-		originalURL: originalURL,
-		shortURL: shortURL
+		original_url: originalURL,
+		short_url: shortURL
 	})
 		.save()
 		.then(savedURL => {
 			return {
-				original_url: savedURL.originalURL,
-				short_url: savedURL.shortURL
+				original_url: savedURL.original_url,
+				short_url: savedURL.short_url
 			};
 		})
 		.catch(err => {
