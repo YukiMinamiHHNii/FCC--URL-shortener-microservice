@@ -1,6 +1,6 @@
 const express = require("express"),
 			dotenv = require("dotenv").load(),
-			cors= require("cors");
+			cors= require("cors"),
 			connection= require("./src/utils/connection"),
 			shorturlRouter = require("./src/routers/shorturl"),
 			bodyParser = require("body-parser");
